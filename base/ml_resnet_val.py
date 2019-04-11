@@ -61,8 +61,8 @@ class MultiLabelResNet():
             self.train_precisions.append(np.mean(train_precision))
             self.losses.append(running_loss)
             if Valid:
+                valid_precision = []
                 for xx, yy in valid_loader:
-                    valid_precision = []
                     y_pred = self.net(xx)
                     valid_precision.append(self.score(yy, y_pred))
                 self.valid_precisions.append(np.mean(valid_precision))
