@@ -48,6 +48,7 @@ class MultiLabelResNet():
         self.train_precisions = []
         self.valid_precisions = []
         for epoch in range(self.epoch):
+            self.net.train()
             running_loss = 0.0
             train_precision = []
             for xx, yy in loader:
@@ -60,6 +61,7 @@ class MultiLabelResNet():
                 train_precision.append(self.score(yy, y_pred))
             self.train_precisions.append(np.mean(train_precision))
             self.losses.append(running_loss)
+            self.net.eval()
             if Valid:
                 valid_precision = []
                 for xx, yy in valid_loader:
@@ -67,10 +69,14 @@ class MultiLabelResNet():
                     valid_precision.append(self.score(yy, y_pred))
                 self.valid_precisions.append(np.mean(valid_precision))
     def predict(self, X):
+        self.net.eval()
         X = np.stack([X, X, X], axis=-1).reshape(-1,3,8,8)
         X = torch.tensor(X, dtype=torch.float32).to(self.device)
-        return self.net(X).data.to("cpu").numpy()
-
+        pred = []
+        for i in range(len(X)):
+            p = self.net(X[i:i+1]).data.to("cpu").numpy()
+            pred.extend(p)
+        return np.array(pred)
 
 
 if __name__=='__main__':
